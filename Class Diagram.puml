@@ -1,0 +1,49 @@
+@startuml
+class Product {
+    +UUID product_id
+    +String name
+    +String sku
+    +Decimal price
+    +String description
+    +DateTime created_at
+    +DateTime updated_at
+    +List<Stock> getStock()
+}
+
+class Stock {
+    +UUID stock_id
+    +UUID product_id
+    +int quantity
+    +int reserved_quantity
+    +DateTime created_at
+    +DateTime updated_at
+    +Product getProduct()
+}
+
+class Sale {
+    +UUID sale_id
+    +UUID product_id
+    +UUID user_id
+    +int quantity
+    +Decimal total_amount
+    +DateTime sale_date
+    +String payment_status
+    +Product getProduct()
+    +User getUser()
+}
+
+class User {
+    +UUID user_id
+    +String username
+    +String password
+    +String role
+    +String email
+    +DateTime created_at
+    +DateTime updated_at
+    +List<Sale> getSales()
+}
+
+Product "1" -- "1..*" Stock : "has"
+Product "1" -- "1..*" Sale : "is sold in"
+User "1" -- "1..*" Sale : "makes"
+@enduml

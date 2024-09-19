@@ -1,0 +1,18 @@
+@startuml
+actor "Admin" as Admin
+boundary "InventoryController" as IC
+control "InventoryService" as IS
+entity "ProductRepository" as PR
+entity "StockRepository" as SR
+boundary "PdfService" as PS
+
+Admin -> IC : Request inventory report
+IC -> IS : getInventoryReport()
+IS -> PR : findAllProducts()
+PR --> IS : List of products
+IS -> SR : findStockByProductId(product_id)
+SR --> IS : List of stock levels
+IS --> IC : List of inventory data
+IC -> PS : generateInventoryPdf(inventoryData)
+PS --> Admin : PDF report
+@enduml

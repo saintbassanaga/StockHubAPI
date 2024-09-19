@@ -1,0 +1,10 @@
+services:
+  postgres:
+    image: 'postgres:latest'
+    container_name: postgres_container
+    environment:
+      - 'POSTGRES_DB=stockhub_db'
+      - 'POSTGRES_PASSWORD=verysecret7'
+      - 'POSTGRES_USER=admin'
+    ports:
+      - '5434:5432'

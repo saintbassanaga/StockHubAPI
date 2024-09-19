@@ -1,0 +1,44 @@
+@startuml
+entity "Product" as P {
+    + product_id : UUID
+    + name : String
+    + SKU : String
+    + price : Decimal
+    + description : String
+    + created_at : DateTime
+    + updated_at : DateTime
+}
+
+entity "Stock" as S {
+    + stock_id : UUID
+    + product_id : UUID
+    + quantity : Int
+    + reserved_quantity : Int
+    + created_at : DateTime
+    + updated_at : DateTime
+}
+
+entity "Sales" as Sal {
+    + sale_id : UUID
+    + product_id : UUID
+    + user_id : UUID
+    + quantity : Int
+    + total_amount : Decimal
+    + sale_date : DateTime
+    + payment_status : String
+}
+
+entity "User" as U {
+    + user_id : UUID
+    + username : String
+    + password : String
+    + role : String
+    + email : String
+    + created_at : DateTime
+    + updated_at : DateTime
+}
+
+P ||--o{ S : "has"
+P ||--o{ Sal : "is sold in"
+U ||--o{ Sal : "makes"
+@enduml
