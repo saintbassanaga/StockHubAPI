@@ -1,6 +1,5 @@
 package tech.saintbassanaga.stockhubapi.dtos;
 
-import org.springframework.web.bind.annotation.Mapping;
 import tech.saintbassanaga.stockhubapi.models.*;
 
 import java.util.stream.Collectors;
@@ -41,7 +40,7 @@ public class DtoMappers {
 
     public static Product toProduct(ProductDto productDto) {
         Product product = new Product();
-        product.setName(productDto.name());
+        product.setName(productDto.name(null));
         product.setCategory(toCategory(productDto.category()));
         product.setPrice(productDto.price());
         product.setDescription(productDto.description());

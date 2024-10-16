@@ -12,7 +12,9 @@ public enum ErrorStatus {
     AUTHENTICATION_ERROR("Authentication Error"),
     INTERNAL_SERVER_ERROR("Internal Server Error"),
     NOT_FOUND_ENTITY("Entity Not Found"),
-    FILE_ERROR("Missing File");
+    FILE_ERROR("Missing File"),
+    INSUFFICIENT_STOCK("Insufficient Stock"),
+    GENERAL_ERROR("General Error");
 
     ErrorStatus(String s) {
     }
