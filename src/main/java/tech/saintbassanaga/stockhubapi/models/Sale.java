@@ -19,8 +19,6 @@ public class Sale extends AbstractAuditingEntity {
     private UUID uuid;
 
     private int quantity;
-    private BigDecimal totalAmount;  // Total price of the sale (quantity * product price)
-
 
     @ManyToOne(cascade = CascadeType.ALL, optional = false)
     @JoinColumn(name = "users_uuid", nullable = false)

@@ -5,12 +5,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tech.saintbassanaga.stockhubapi.config.exceptions.ErrorCode;
+import tech.saintbassanaga.stockhubapi.config.exceptions.ErrorStatus;
 import tech.saintbassanaga.stockhubapi.dtos.SaleDto;
 import tech.saintbassanaga.stockhubapi.config.exceptions.GeneralException;
 import tech.saintbassanaga.stockhubapi.dtos.DtoMappers;
 import tech.saintbassanaga.stockhubapi.models.Sale;
+import tech.saintbassanaga.stockhubapi.repositories.ProductRepository;
 import tech.saintbassanaga.stockhubapi.repositories.SaleRepository;
-import tech.saintbassanaga.stockhubapi.repositories.StockRepository;
+import tech.saintbassanaga.stockhubapi.repositories.UsersRepository;
 import tech.saintbassanaga.stockhubapi.services.SaleService;
 import tech.saintbassanaga.stockhubapi.services.StockService;
 
@@ -25,12 +28,16 @@ import java.util.stream.Collectors;
 public class SaleServiceImpl implements SaleService {
 
     private final SaleRepository saleRepository;
+    private final UsersRepository usersRepository;
     private final StockService stockService;
     private static final Logger logger = LoggerFactory.getLogger(SaleServiceImpl.class);
+    private final ProductRepository productRepository;
 
-    public SaleServiceImpl(SaleRepository saleRepository, StockService stockService) {
+    public SaleServiceImpl(SaleRepository saleRepository, UsersRepository usersRepository, StockService stockService, ProductRepository productRepository) {
         this.saleRepository = saleRepository;
+        this.usersRepository = usersRepository;
         this.stockService = stockService;
+        this.productRepository = productRepository;
     }
 
     /**
@@ -41,12 +48,11 @@ public class SaleServiceImpl implements SaleService {
     public SaleDto createSale(UUID productId, UUID userId, int quantity) {
         // Adjust stock quantity using StockService
         stockService.adjustProductQuantity(productId, -quantity);
-
-        // Proceed with sale creation
-        Sale sale = saleRepository.save(new Sale(productId, userId, quantity));
-        logger.info("Sale created with ID: {}", sale.getUuid().toString());
-
-        return DtoMappers.toSaleDto(sale);
+        Sale sale = new Sale();
+        sale.setProduct(productRepository.getReferenceById(productId));
+        sale.setQuantity(quantity);
+        sale.setUsers(usersRepository.getReferenceById(userId));
+        return DtoMappers.toSaleDto(saleRepository.save(sale));
     }
 
     /**
@@ -56,7 +62,7 @@ public class SaleServiceImpl implements SaleService {
     public SaleDto getSaleById(UUID saleId) {
         return saleRepository.findById(saleId)
                 .map(DtoMappers::toSaleDto)
-                .orElseThrow(() -> new GeneralException("Sale not found with ID: " + saleId));
+                .orElseThrow(() -> new GeneralException("Sale not found with ID: " + saleId, ErrorCode.RESOURCE_NOT_FOUND, ErrorStatus.NOT_FOUND_ENTITY));
     }
 
     /**
@@ -74,7 +80,9 @@ public class SaleServiceImpl implements SaleService {
      */
     @Override
     public List<SaleDto> getSalesByUserId(UUID userId) {
-        return saleRepository.findByUserId(userId).stream()
+        return saleRepository
+                .findSalesByUsers(usersRepository.getReferenceById(userId))
+                .stream()
                 .map(DtoMappers::toSaleDto)
                 .collect(Collectors.toList());
     }
@@ -84,7 +92,9 @@ public class SaleServiceImpl implements SaleService {
      */
     @Override
     public List<SaleDto> getSalesByProductId(UUID productId) {
-        return saleRepository.findByProductId(productId).stream()
+        return saleRepository
+                .findSalesByProducts(productRepository.getReferenceById(productId))
+                .stream()
                 .map(DtoMappers::toSaleDto)
                 .collect(Collectors.toList());
     }
