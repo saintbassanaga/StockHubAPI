@@ -9,6 +9,6 @@ import java.util.UUID;
 /**
  * DTO for {@link tech.saintbassanaga.stockhubapi.models.Sale}
  */
-public record SaleDto(int quantity, BigDecimal totalAmount,
+public record SaleDto(int quantity,
                       PaymentStatus paymentStatus) implements Serializable {
 }

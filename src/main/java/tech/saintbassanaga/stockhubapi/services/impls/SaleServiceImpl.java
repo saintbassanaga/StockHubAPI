@@ -55,6 +55,17 @@ public class SaleServiceImpl implements SaleService {
         return DtoMappers.toSaleDto(saleRepository.save(sale));
     }
 
+    @Override
+    public SaleDto updateSale(UUID saleId, SaleDto saleUpdate) {
+        Sale sale = saleRepository.findById(saleId)
+                .orElseThrow(() -> new GeneralException("Sale not found", ErrorCode.RESOURCE_NOT_FOUND, ErrorStatus.NOT_FOUND_ENTITY));
+        // Adjust stock if necessary and update the sale details
+        sale.setQuantity(saleUpdate.quantity());
+        sale.setPaymentStatus(saleUpdate.paymentStatus());
+        saleRepository.save(sale);
+        return DtoMappers.toSaleDto(sale);
+    }
+
     /**
      * {@inheritDoc}
      */

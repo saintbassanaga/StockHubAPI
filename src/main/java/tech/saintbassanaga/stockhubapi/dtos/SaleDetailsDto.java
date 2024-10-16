@@ -11,7 +11,6 @@ import java.util.UUID;
 /**
  * DTO for {@link tech.saintbassanaga.stockhubapi.models.Sale}
  */
-public record SaleDetailsDto(LocalDateTime createAt, LocalDateTime updateAt, UUID uuid, int quantity,
-                             BigDecimal totalAmount, Users users, ProductDto product,
+public record SaleDetailsDto(LocalDateTime createAt, LocalDateTime updateAt, UUID uuid, int quantity, Users users, ProductDto product,
                              PaymentStatus paymentStatus) implements Serializable {
 }

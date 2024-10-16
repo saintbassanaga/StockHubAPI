@@ -27,6 +27,16 @@ public interface SaleService {
     SaleDto createSale(UUID productId, UUID userId, int quantity);
 
     /**
+     * Updates the details of an existing sale, including the quantity and payment status.
+     *
+     * @param saleId      the UUID of the sale to update
+     * @param saleUpdate  the SaleDto object containing updated sale details
+     * @return SaleDto    the updated sale details as a data transfer object
+     * @throws GeneralException if the sale is not found with the given ID
+     */
+    public SaleDto updateSale(UUID saleId, SaleDto saleUpdate);
+
+    /**
      * Retrieves the details of a sale by its ID.
      *
      * @param saleId the UUID of the sale to retrieve

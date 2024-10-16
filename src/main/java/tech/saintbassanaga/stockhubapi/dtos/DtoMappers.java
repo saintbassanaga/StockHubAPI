@@ -32,7 +32,6 @@ public class DtoMappers {
     public static ProductDto toProductDto(Product product) {
         return new ProductDto(
                 product.getName(),
-                toCategoryDto(product.getCategory()),
                 product.getPrice(),
                 product.getDescription()
         );
@@ -40,8 +39,8 @@ public class DtoMappers {
 
     public static Product toProduct(ProductDto productDto) {
         Product product = new Product();
-        product.setName(productDto.name(null));
-        product.setCategory(toCategory(productDto.category()));
+        product.setName(productDto.name());
+        // product.setCategory(toCategory(productDto.category()));
         product.setPrice(productDto.price());
         product.setDescription(productDto.description());
         return product;
@@ -68,7 +67,7 @@ public class DtoMappers {
                 sale.getUpdateAt(),
                 sale.getUuid(),
                 sale.getQuantity(),
-                sale.getTotalAmount(), sale.getUsers(), // Using simple UserDto instead of full user details
+                sale.getUsers(), // Using simple UserDto instead of full user details
                 toProductDto(sale.getProduct()),  // Using simple ProductDto for sale
                 sale.getPaymentStatus()
         );
@@ -78,7 +77,6 @@ public class DtoMappers {
     public static SaleDto toSaleDto(Sale sale) {
         return new SaleDto(
                 sale.getQuantity(),
-                sale.getTotalAmount(),
                 sale.getPaymentStatus()
         );
     }
@@ -86,7 +84,6 @@ public class DtoMappers {
     public static Sale toSale(SaleDetailsDto saleDetailsDto) {
         Sale sale = new Sale();
         sale.setQuantity(saleDetailsDto.quantity());
-        sale.setTotalAmount(saleDetailsDto.totalAmount());
         sale.setProduct(toProduct(saleDetailsDto.product()));
         sale.setPaymentStatus(saleDetailsDto.paymentStatus());
         return sale;
