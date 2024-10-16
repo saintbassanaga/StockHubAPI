@@ -1,5 +1,6 @@
 package tech.saintbassanaga.stockhubapi.dtos;
 
+import org.springframework.web.bind.annotation.Mapping;
 import tech.saintbassanaga.stockhubapi.models.*;
 
 import java.util.stream.Collectors;
