@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Created by saintbassanaga {saintbassanaga}
  * In the Project StockHubAPI at Thu - 9/19/24
@@ -44,10 +47,10 @@ public class ProductServiceImpls implements ProductService {
      * </p>
      *
      * @return a {@code List<ProductDto>} containing all products present in the database,
-     *         with each {@code Product} entity converted to a {@code ProductDto}.
+     * with each {@code Product} entity converted to a {@code ProductDto}.
      * @implNote The result is a list of filtered data where each {@code Product} is transformed
-     *           into a {@code ProductDto} using the mapper function. The data is retrieved from
-     *           the database, streamed, mapped, and collected into a list.
+     * into a {@code ProductDto} using the mapper function. The data is retrieved from
+     * the database, streamed, mapped, and collected into a list.
      * Example usage:
      * <pre>{@code
      *  List<ProductDto> products = productService.getAllProduct();
@@ -74,10 +77,10 @@ public class ProductServiceImpls implements ProductService {
      * @param productUuid the unique identifier of the {@code Product} to retrieve.
      * @return a {@code ProductDto} containing the product's data.
      * @throws GeneralException if no product is found with the specified UUID.
-     * Example usage:
-     * <pre>{@code
-     *  ProductDto productDto = productService.getProductByUuid(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
-     * }</pre>
+     *                          Example usage:
+     *                          <pre>{@code
+     *                           ProductDto productDto = productService.getProductByUuid(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
+     *                          }</pre>
      */
     @Override
     public ProductDto getProductByUuid(UUID productUuid) {
@@ -89,32 +92,79 @@ public class ProductServiceImpls implements ProductService {
     }
 
     /**
-     * @param productId
-     * @return
+     * Deletes a product based on its unique identifier (UUID).
+     *
+     * @param productId the UUID of the product to be deleted
+     * @return a confirmation message indicating the product has been deleted successfully
      */
     @Override
     public String deleteProduct(UUID productId) {
-        productRepository.findById(productId);
+        // Check if the product exists; throws an exception if not found
+        productRepository.findById(productId).orElseThrow(() -> new GeneralException("Product not found", ErrorCode.PRODUCT_NOT_FOUND, ErrorStatus.NOT_FOUND_ENTITY));
+
+        // Delete the product by its ID
         productRepository.deleteById(productId);
+
+        // Return a confirmation message
         return "Product Deleted Successfully";
     }
-
     /**
-     * @param uuidList
-     * @return
+     * Deletes multiple products based on a list of UUIDs.
+     * Logs and skips any UUIDs that do not correspond to existing products.
+     *
+     * @param uuidList a list of UUIDs of the products to be deleted
+     * @return a confirmation message indicating the number of successfully deleted products
      */
     @Override
     public String multipleDelete(List<UUID> uuidList) {
-        return "";
+        Logger logger = LoggerFactory.getLogger(this.getClass());
+
+        // Identify UUIDs that do not exist in the repository
+        List<UUID> missingProductIds = uuidList.stream()
+                .filter(uuid -> !productRepository.existsById(uuid))
+                .collect(Collectors.toList());
+
+        // Log the UUIDs of missing products
+        if (!missingProductIds.isEmpty()) {
+            logger.warn("The following product IDs were not found and will be skipped: {}", missingProductIds);
+        }
+        // Filter the list to include only the products that actually exist
+        List<UUID> existingProductIds = uuidList.stream()
+                .filter(productRepository::existsById)
+                .collect(Collectors.toList());
+        // Delete all products that are found in the repository
+        productRepository.deleteAllById(existingProductIds);
+
+        // Return a confirmation message with the count of deleted products
+        return existingProductIds.size() + " Products Deleted Successfully";
     }
 
     /**
-     * @param product
-     * @param productId
-     * @return
+     * Updates an existing product with new details.
+     *
+     * @param product   the product entity containing updated details
+     * @param productId the UUID of the product to be updated
+     * @return a ProductDetailsDto containing the updated product details
      */
     @Override
     public ProductDetailsDto updateProduct(Product product, UUID productId) {
-        return null;
+        // Retrieve and validate the product; throws an exception if not found
+        Product existingProduct = productRepository
+                .findById(productId)
+                .orElseThrow(
+                        () -> new GeneralException("Product not found", ErrorCode.PRODUCT_NOT_FOUND, ErrorStatus.NOT_FOUND_ENTITY)
+                );
+        // Update the existing product's details with those provided in the input product entity
+        existingProduct.setName(product.getName());
+        existingProduct.setCategory(product.getCategory());
+        existingProduct.setPrice(product.getPrice());
+        existingProduct.setDescription(product.getDescription());
+
+        // Save the updated product back to the repository
+        Product updatedProduct = productRepository.save(existingProduct);
+
+        // Map the updated product to a ProductDetailsDto and return it
+        return DtoMappers.toProductDetailsDto(updatedProduct);
     }
+
 }
